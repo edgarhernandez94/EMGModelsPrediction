@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import joblib
 
 # Paso 1: Cargar el archivo CSV con las características y las etiquetas
-features = pd.read_csv('features.csv')
+features = pd.read_csv('C:/Users/edgar/OneDrive/Escritorio/Juanjoproject/CSV/features.csv')
 
 # Paso 2: Dividir los datos en características (X) y etiquetas (y)
 X = features[['SD', 'Mean', 'Amplitud']]
