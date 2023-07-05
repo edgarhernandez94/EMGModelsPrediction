@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+from scipy.signal import periodogram
 
 # Paso 1: Obtener la lista de archivos CSV en la carpeta actual
 csv_files = [file for file in os.listdir('.') if file.endswith('.csv')]
@@ -33,6 +34,14 @@ for file in csv_files:
             desviacion_estandar_signal2 = np.std(datos2)
             amplitud_maxima_signal2 = np.max(datos2) - np.min(datos2)
 
+            # Calcular el periodograma y la frecuencia de las señales
+            frecuencia1, periodograma1 = periodogram(datos1)
+            frecuencia2, periodograma2 = periodogram(datos2)
+            
+            # Calcular el valor máximo del periodograma
+            max_periodograma1 = np.max(periodograma1)
+            max_periodograma2 = np.max(periodograma2)
+
             # Calcular el Porcentaje de fatiga
             if prev_amplitude_signal1 is not None:
                 fatigue_percentage_signal1 = amplitud_maxima_signal1 - prev_amplitude_signal1
@@ -54,11 +63,13 @@ for file in csv_files:
                 'Media_Signal1': [media_signal1],
                 'Standard_Deviation_Signal1': [desviacion_estandar_signal1],
                 'Amplitude_Signal1': [amplitud_maxima_signal1],
+                'Max_Periodogram_Signal1': [max_periodograma1],
                 'Fatigue_Percentage_Signal1': [fatigue_percentage_signal1],
                 'Integral_Signal2': [integral_signal2],
                 'Media_Signal2': [media_signal2],
                 'Standard_Deviation_Signal2': [desviacion_estandar_signal2],
                 'Amplitude_Signal2': [amplitud_maxima_signal2],
+                'Max_Periodogram_Signal2': [max_periodograma2],
                 'Fatigue_Percentage_Signal2': [fatigue_percentage_signal2],
                 'Label': [label]  # Nota el cambio aquí, ahora estamos pasando una lista
             })
