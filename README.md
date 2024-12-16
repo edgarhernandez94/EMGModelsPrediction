@@ -1,49 +1,105 @@
-# Proyecto de Monitoreo Muscular
+# Muscle Monitoring Project
 
-Este proyecto consiste en una solución de monitoreo muscular utilizando un Arduino y un modelo de clasificación. El objetivo es adquirir datos electromiográficos en dos condiciones: estado de reposo y estado de contracción muscular, y utilizar estos datos para realizar predicciones en tiempo real sobre el estado de contracción.
+This project provides a solution for muscle monitoring using an Arduino and a classification model. The system acquires electromyographic (EMG) data in two distinct conditions: resting state and muscle contraction state, and uses this data to make real-time predictions about the muscle contraction state. 
 
-## Componentes del Proyecto
+This algorithm was implemented as part of the research presented in the paper **"Human-to-Human Knowledge Transfer using Functional Electrical Stimulation"**, published at the **2020 IEEE International Conference on Systems, Man, and Cybernetics (SMC)**. You can access the paper [here](https://ieeexplore.ieee.org/abstract/document/9283319).
 
-El proyecto consta de los siguientes elementos:
+---
 
-1. **Código Fuente**: El código está dividido en tres partes principales:
+## Project Components
 
-    - `csvgenerator.py`: Este archivo contiene las funciones necesarias para la adquisición de datos del Arduino, almacenamiento en archivos CSV y el ciclo de reposo y contracción muscular.
-   
-    - `features.py`: Aquí se encuentra el código para procesar los archivos CSV generados por el código anterior, calculando características como la desviación estándar, la media, la amplitud y el periodograma de las señales. Estos datos se combinan en un solo DataFrame y se guardan en un archivo CSV final.
-    
-    - `RF.py` : Este codigo utiliza los features previamente adquiridos junto los labels para obtener tres modelos de clasificacion diferentes, evaluarlos, y el que obtenga mejor accuracy generar un archivo `.pkl`. 
+The project is composed of the following elements:
 
-    - `RealTimeClassification.py`: Este archivo contiene el código para realizar la comunicación serial con el Arduino en tiempo real. Adquiere datos en tiempo real, calcula las características correspondientes y utiliza un modelo de clasificación previamente entrenado para realizar predicciones en tiempo real sobre el estado de contracción muscular.
+### 1. Hardware Setup
 
-2. **Modelo de Clasificación**: El modelo de clasificación utilizado para realizar las predicciones se guarda en un archivo de extensión `.pkl`. En este proyecto, se utiliza un modelo de árbol de decisión entrenado previamente. Puedes reemplazarlo con otro modelo si lo deseas.
+- **Arduino**:  
+  An Arduino board is used to interface with EMG sensors, enabling data acquisition from the muscle activity of a subject. The Arduino reads the analog signals from the EMG sensor and sends them to the computer via serial communication.
 
-3. **Archivos CSV**: Los datos adquiridos durante el ciclo de reposo y contracción muscular se guardan en archivos CSV separados. Estos archivos se procesan posteriormente para extraer características y generar un archivo CSV final con los datos procesados.
+- **EMG Sensor**:  
+  The EMG sensor measures electrical activity produced by muscle movements. Electrodes placed on the skin surface capture the signals, which are then amplified and filtered by the sensor before being transmitted to the Arduino.
 
-## Instrucciones de Uso
+- **Electrodes**:  
+  Surface electrodes are used to capture muscle activity. These should be placed correctly to minimize noise and ensure reliable signal acquisition. Typically, one electrode is placed on the muscle of interest (active electrode), another on a reference point (ground), and a third on a nearby inactive area (reference electrode).
 
-A continuación, se presentan las instrucciones para utilizar este proyecto:
+---
 
-1. Conexión del Arduino:
-   - Conecta tu Arduino al puerto serie especificado en el código fuente (variable `puerto_serial` en `csvgenerator.py` y `RealTimeClassification.py`). Asegúrate de que el baud rate coincida con la configuración de tu Arduino (variable `baud_rate` en `csvgenerator.py` y `RealTimeClassification.py`).
+### 2. Source Code
 
-2. Ejecución del Proyecto:
-   - Ejecuta el archivo `csvgenerator.py` para realizar el ciclo de reposo y contracción muscular. Este código adquirirá datos del Arduino durante un período de tiempo específico para cada estado y los guardará en archivos CSV separados.
+The code is divided into four main parts:
 
-   - Luego, ejecuta el archivo `features.py` para procesar los archivos CSV generados en el paso anterior. Este código calculará características adicionales a partir de los datos y generará un archivo CSV final llamado `features.csv`. Posteriormente correr el codigo `RF.py` para obtener el modelo de clasificacion.
+- **`csvgenerator.py`**:  
+  Responsible for acquiring EMG data from the Arduino, storing it in CSV files, and managing the resting and muscle contraction cycles. The script prompts the user to perform specific actions (rest or contract muscles) and saves the corresponding data.
 
-   - Finalmente, ejecuta el archivo `RealTimeClassification.py` para realizar la comunicación serial en tiempo real con el Arduino. Este código adquirirá datos en tiempo real, calculará las características correspondientes y utilizará el modelo de clasificación para realizar predicciones en tiempo real sobre el estado de contracción muscular.
+- **`features.py`**:  
+  Processes the raw EMG data stored in CSV files, extracting statistical features such as:
+  - **Standard Deviation**: Measures the variability of the signal.
+  - **Mean**: Indicates the average value of the signal.
+  - **Amplitude**: Calculates the difference between maximum and minimum values.
+  - **Periodogram**: Estimates the power spectral density of the signal.
 
-## Dependencias
+  The extracted features are combined into a single DataFrame and saved in a final CSV file named `features.csv`.
 
-El proyecto utiliza las siguientes dependencias:
+- **`RF.py`**:  
+  Trains and evaluates three different machine learning classification models (e.g., Random Forest, Decision Tree, etc.) using the features generated by `features.py`. The best-performing model, based on accuracy, is saved as a `.pkl` file for future use.
 
-- `time`: Librería estándar de Python para trabajar con tiempos y esperas.
-- `csv`: Librería estándar
-- pandas==1.3.0
-- scikit-learn==0.24.2
-- seaborn==0.11.1
-- matplotlib==3.4.3
-- joblib==1.0.1
-- numpy
+- **`RealTimeClassification.py`**:  
+  Implements real-time communication with the Arduino to classify muscle activity in real time. It acquires EMG signals, calculates features, and uses the pre-trained classification model to predict the muscle state (resting or contracting).
 
+---
+
+### 3. Classification Model
+
+- The classification model used for real-time predictions is stored in a `.pkl` file. The project employs a decision tree model by default, but this can be replaced with another trained model as needed.
+- The classification process involves training the model on features extracted from EMG signals, allowing it to differentiate between resting and contracting states effectively.
+
+---
+
+### 4. CSV Files
+
+Data acquired during the resting and contraction cycles are stored in separate CSV files. These files are processed in the following steps:
+1. **Data Acquisition**: Raw EMG signals are recorded and saved.
+2. **Feature Extraction**: Key features are extracted from the raw data.
+3. **Final Dataset**: A combined CSV file (`features.csv`) is created for model training.
+
+---
+
+## Instructions for Use
+
+### 1. Hardware Connection:
+1. Connect the EMG sensor to the Arduino following the sensor's documentation.
+2. Attach the electrodes to the desired muscle area for signal acquisition.
+3. Connect the Arduino to your computer via USB.
+4. Configure the correct serial port (`serial_port` variable) and baud rate (`baud_rate` variable) in both `csvgenerator.py` and `RealTimeClassification.py`.
+
+### 2. Running the Project:
+1. Run `csvgenerator.py` to record EMG signals during resting and contraction cycles. The script will prompt you to alternate between resting and contracting your muscles for specific time intervals. The recorded data will be saved in separate CSV files.
+2. Run `features.py` to process the recorded data, extract features, and generate a combined CSV file (`features.csv`).
+3. Run `RF.py` to train and evaluate machine learning models. The best model will be saved as a `.pkl` file.
+4. Run `RealTimeClassification.py` to classify muscle activity in real time using the pre-trained model. The predictions will indicate whether the muscle is in a resting or contracting state.
+
+---
+
+## Dependencies
+
+The project requires the following dependencies:
+
+- `time`: Python standard library for working with time and delays.
+- `csv`: Python standard library for handling CSV files.
+- `pandas==1.3.0`
+- `scikit-learn==0.24.2`
+- `seaborn==0.11.1`
+- `matplotlib==3.4.3`
+- `joblib==1.0.1`
+- `numpy`
+
+Install the dependencies using:
+```bash
+
+pip install pandas scikit-learn seaborn matplotlib joblib numpy
+````
+
+## Additional Information
+
+This project demonstrates the potential for combining hardware and machine learning to monitor muscle activity effectively. The same algorithm has been utilized in high-impact research, such as the **"Human-to-Human Knowledge Transfer using Functional Electrical Stimulation"** study, showcasing its applicability in real-world scenarios, including healthcare and rehabilitation.
+
+For more details, refer to the paper on IEEE: [Human-to-Human Knowledge Transfer using Functional Electrical Stimulation](https://ieeexplore.ieee.org/abstract/document/9283319).
